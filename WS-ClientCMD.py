@@ -5,6 +5,12 @@
 import asyncio
 import websockets
 
+# Colours
+def prRed(skk): print("\033[91m {}\033[00m" .format(skk))
+def prGreen(skk): print("\033[92m {}\033[00m" .format(skk))
+def prCyan(skk): print("\033[96m {}\033[00m" .format(skk))
+def prYellow(skk): print("\033[93m {}\033[00m" .format(skk))
+
 async def sendCMDs():
     uri = "ws://localhost:8765"
     cmd = ''
@@ -12,13 +18,14 @@ async def sendCMDs():
         async with websockets.connect(uri) as websocket:
             cmd = input("Enter Command To Run: ")
             await websocket.send(cmd)
-            print(f"Sending {cmd}")
+            prYellow(f"Sending {cmd}")
             cmd_output = await websocket.recv()
             await websocket.send(cmd_output)
             
-            print("Output from Command: ")
-            print(f"Received: {cmd_output}")
+            prCyan("Output from Command: ")
+            prGreen(f"Received: {cmd_output}")
     else:
+        prRed("Exit command received, exitting...")
         exit()
        
 
