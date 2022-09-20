@@ -9,4 +9,6 @@ The powershell client will connect to a websocket server on whatever host/port y
 - [WS-ServerCMD.py](https://github.com/ZephrFish/WebsocketsC2/blob/main/WS-ServerCMD.py) - This listens for output, then executes commands on the server and returns the resposne to the client, it's like a reverse C2 Server.
 - [SockMe-It.ps1](https://github.com/ZephrFish/WebsocketsC2/blob/main/SockMe-It.ps1) - This is a powershell client that will connect to a server and listen for commands from a fixed location then send output back.
 
-Additional tools in this repo include PadSockets which is a second project which uses websockets in a web server setup with a note pad application which is a good place of reference for copy and pasting into an environment.
+Additional tools in this repo include PadSockets. Which is a second project which uses websockets in a web server setup with a note pad application which is a good place of reference for copy and pasting into an environment.
+
+Future plans are to roll in some tradecraft for file uploads and downloads plus secure websockets for Pad, but not today satan.
