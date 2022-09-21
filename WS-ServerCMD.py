@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # WebSockets Server 
 # ZephrFish
+# This will execute anything you send to it over a websocket on whatever port/host you specify on line 56
 
 import asyncio
 import websockets
