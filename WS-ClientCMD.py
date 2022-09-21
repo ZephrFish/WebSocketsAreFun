@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # Command execution PoC 
 # ZephrFIsh
+# Edit line 16 to whatever host you want to connect to
 
 import asyncio
 import websockets
