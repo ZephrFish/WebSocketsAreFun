@@ -50,7 +50,7 @@ Write-Output "Connecting..."
 # Serverside we will need websocat (https://github.com/vi/websocat/releases/tag/v1.10.0)
 # Run the following serverside: 
 # ./web -s 0.0.0.0:80 | tee -a log.json
-$connectTask = $ws.ConnectAsync("ws://ec2-35-173-242-41.compute-1.amazonaws.com:80/$client_id", $cts.Token)
+$connectTask = $ws.ConnectAsync("ws://CHANGEME:80/$client_id", $cts.Token)
 do { Sleep(1) }
 until ($connectTask.IsCompleted)
 Write-Output "Connected!"
