@@ -1,5 +1,5 @@
-# WebsocketsC2
-In its current form WebSocketsC2 is composed of a python client/server setup and a powershell client, which is a work in progress.
+# WebSocketsAreFun
+In its current form WebSocketsAreFun is composed of a python client/server setup and a powershell client, which is a work in progress.
 
 The powershell client will connect to a websocket server on whatever host/port you specify and await input, it is not proxy aware at the moment but there are some testing commands built in.
 
