@@ -1,3 +1,6 @@
 [submodule "Pad"]
 	path = Pad
 	url = https://github.com/petercunha/Pad
+[submodule "PadSockets"]
+	path = PadSockets
+	url = https://github.com/ZephrFish/PadSockets
